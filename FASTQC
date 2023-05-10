@@ -1,23 +1,62 @@
-Bootstrap: library
+# singularity build --fakeroot fastqc_v0.12.1.sif fastqc_v0.12.1.dev
 
-From: ubuntu:20.04
-
-
-%labels
-    Topic Bioinformatics
-    Input FASTQ
-    Output FASTQ_QC
-    fastqc Version 0.12.0
+%environment
+export LC_ALL=C
+export LC_NUMERIC=en_GB.UTF-8
+export PATH="/opt/miniconda/bin:$PATH"
 
 
-%post
-    apt-get update --fix-missing && apt-get install -y wget
-    apt install -y tzdata
-    apt-get install -y zip default-jre perl
-    wget --quiet https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.12.1.zip -O /opt/fastqc_v0.12.1.zip
-    unzip /opt/fastqc_v0.12.1.zip
-    rm /opt/fastqc_v0.12.1.zip
-    chmod a+x /FastQC/fastqc
+%help
+Container for fastqc
+A quality control tool for high throughput sequence data.
+http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+
+Version: 0.12.1
+Package installation using Miniconda3-4.7.12
+All packages are in /opt/miniconda/bin & are in PATH
+Default runscript: fastqc
+
+Usage:
+    fastqc_v0.12.1.sif --help
+    or:
+    singularity exec fastqc_v0.12.1.sif fastqc --help
+
 
 %runscript
-    exec /FastQC/fastqc "$@"
+    #default runscript: fastqc passing all arguments from cli: $@
+    exec /opt/miniconda/bin/fastqc "$@"
+
+%post
+
+    #essential stuff but minimal
+    apt update
+    #for security fixe:
+    #apt upgrade -y
+    apt install -y wget bzip2
+
+    #install conda
+    cd /opt
+    rm -fr miniconda
+
+    #miniconda3: get miniconda3 version 4.7.12
+    wget https://repo.continuum.io/miniconda/Miniconda3-4.7.12-Linux-x86_64.sh -O miniconda.sh
+
+    #install conda
+    bash miniconda.sh -b -p /opt/miniconda
+    export PATH="/opt/miniconda/bin:$PATH"
+    #add channels
+    conda config --add channels defaults
+    conda config --add channels bioconda
+    conda config --add channels conda-forge
+
+    #install fastqc
+    
+    conda install -y -c bioconda fastqc=0.12.1-0
+
+    #cleanup
+    conda clean -y --all
+    rm -f /opt/miniconda.sh
+    apt autoremove --purge
+    apt clean
+
+
