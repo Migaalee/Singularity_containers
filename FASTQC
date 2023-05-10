@@ -1,6 +1,7 @@
-Bootstrap: docker
+Bootstrap: library
 
 From: ubuntu:20.04
+
 
 %labels
     Topic Bioinformatics
@@ -11,6 +12,7 @@ From: ubuntu:20.04
 
 %post
     apt-get update --fix-missing && apt-get install -y wget
+    apt install -y tzdata
     apt-get install -y zip default-jre perl
     wget --quiet https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.12.1.zip -O /opt/fastqc_v0.12.1.zip
     unzip /opt/fastqc_v0.12.1.zip
