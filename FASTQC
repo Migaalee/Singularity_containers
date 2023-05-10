@@ -1,0 +1,21 @@
+Bootstrap: docker
+
+From: ubuntu:20.04
+
+%labels
+    Topic Bioinformatics
+    Input FASTQ
+    Output FASTQ_QC
+    fastqc Version 0.12.0
+
+
+%post
+    apt-get update --fix-missing && apt-get install -y wget
+    apt-get install -y zip default-jre perl
+    wget --quiet https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.12.1.zip -O /opt/fastqc_v0.12.1.zip
+    unzip /opt/fastqc_v0.12.1.zip
+    rm /opt/fastqc_v0.12.1.zip
+    chmod a+x /FastQC/fastqc
+
+%runscript
+    exec /FastQC/fastqc "$@"
